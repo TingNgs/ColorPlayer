@@ -54,15 +54,6 @@
             android:text="asdas"
             android:textSize="24dp" />
 
-        <TextView
-            android:id="@+id/tv_color1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/tv_color"
-            android:layout_alignLeft="@+id/tv_color"
-            android:layout_alignStart="@+id/tv_color"
-            android:text="qqq"
-            android:textSize="24dp" />
         <ImageView
             android:id="@+id/iv_color0"
             android:layout_width="50dp"

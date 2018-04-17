@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     int soundValue0=0,soundValue1=0,soundValue2=0;
     boolean soundPlayer = true;
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
-    TextView tv_color,tv_color1;
+    TextView tv_color;
     Button b_pick,b_photo;
     Spinner s_box;
     private final int requestCode = 20;
@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         iv_color1 = (ImageView) findViewById(R.id.iv_color1);
         iv_color2 = (ImageView) findViewById(R.id.iv_color2);
         tv_color = (TextView) findViewById(R.id.tv_color);
-        tv_color1 = (TextView) findViewById(R.id.tv_color1);
         //b_pick = (Button) findViewById(R.id.b_pick);
         b_photo = (Button) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
@@ -58,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                tv_color.setText(sc.getColorName(soundValue0));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                tv_color.setText(sc.getColorName(soundValue1));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                tv_color.setText(sc.getColorName(soundValue2));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
@@ -192,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -217,14 +220,14 @@ public class MainActivity extends AppCompatActivity {
                     int R = Color.red(pixelColor);
                     int G = Color.green(pixelColor);
                     int B = Color.blue(pixelColor);
-                    tv_color.setText("Alpha: " + A +"Color: "+ R + ", "+ G +", "+ B);
+
                     int tempColor = sc.getSevenColor(pixelColor);
                     int finalColor = sc.getColorValue(tempColor);
                     A = Color.alpha(finalColor);
                     R = Color.red(finalColor);
                     G = Color.green(finalColor);
                     B = Color.blue(finalColor);
-                    tv_color1.setText("Alpha: " + A +"Color: "+ R + ", "+ G +", "+ B);
+
                     updateBoxChose(tempColor);
                     iv_color.setBackgroundColor(finalColor);
                 }

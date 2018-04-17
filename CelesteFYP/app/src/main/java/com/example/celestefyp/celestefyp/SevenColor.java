@@ -53,6 +53,18 @@ public class SevenColor {
         return color;
     }
 
+    public String getColorName(int tempColor){
+        if(tempColor==1) return "Red";
+        if(tempColor==2) return "Orange";
+        if(tempColor==3) return "Yellow";
+        if(tempColor==4) return "Green";
+        if(tempColor==5) return "Blue";
+        if(tempColor==6) return "Six";
+        if(tempColor==7) return "Seven";
+        if(tempColor==8) return "Eight";
+        return "Error";
+    }
+
     private double getDistance(int pixelColor,int r,int g,int b){
         double rd = (Color.red(pixelColor)-r)*(Color.red(pixelColor)-r);
         double gd = (Color.green(pixelColor)-g)*(Color.green(pixelColor)-g);
