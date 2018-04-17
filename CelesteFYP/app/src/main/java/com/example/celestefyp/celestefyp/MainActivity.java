@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     int RESULT_LOAD_IMAGE = 0;
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 1;
-
+    int soundValue0=0,soundValue1=0,soundValue2=0;
+    boolean soundPlayer = true;
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
     TextView tv_color,tv_color1;
     Button b_pick,b_photo;
@@ -55,19 +58,31 @@ public class MainActivity extends AppCompatActivity {
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //iv_color = (ImageView) findViewById(R.id.iv_color0);
+                if(soundPlayer) {
+                    soundPlayer = false;
+                    playSound(soundValue0);
+                    soundPlayer = true;
+                }
             }
         });
         iv_color1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //iv_color = (ImageView) findViewById(R.id.iv_color1);
+                if(soundPlayer) {
+                    soundPlayer = false;
+                    playSound(soundValue1);
+                    soundPlayer = true;
+                }
             }
         });
         iv_color2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //iv_color = (ImageView) findViewById(R.id.iv_color2);
+                if(soundPlayer) {
+                    soundPlayer = false;
+                    playSound(soundValue2);
+                    soundPlayer = true;
+                }
             }
         });
 
@@ -85,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_dropdown_item);
         s_box.setAdapter(boxList);
 
+
         /*b_pick.setOnClickListener(new View.OnClickListener(){
-            @Override
+            @Override2
             public void onClick(View view) {
 
             }
@@ -120,15 +136,59 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    private void updateBoxChose(){
+    private void playSound(int soundValue){
+        MediaPlayer player = null;
+        switch (soundValue){
+            case 1:
+                player = MediaPlayer.create(this, R.raw.a);
+                break;
+            case 2:
+                player = MediaPlayer.create(this, R.raw.b);
+                break;
+            case 3:
+                player = MediaPlayer.create(this, R.raw.c);
+                break;
+            case 4:
+                player = MediaPlayer.create(this, R.raw.d);
+                break;
+            case 5:
+                player = MediaPlayer.create(this, R.raw.e);
+                break;
+            case 6:
+                player = MediaPlayer.create(this, R.raw.f);
+                break;
+            case 7:
+                player = MediaPlayer.create(this, R.raw.g);
+                break;
+            default:
+                player = MediaPlayer.create(this,R.raw.error);
+                break;
+        }
+        if(player != null) {
+            player.start();
+        }
+    player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            mp.stop();
+            if(mp != null){
+                mp.release();
+            }
+        }
+    });
+    }
+    private void updateBoxChose(int tempColor){
         if(s_box.getSelectedItemPosition()== 0){
             iv_color = (ImageView) findViewById(R.id.iv_color0);
+            soundValue0 = tempColor;
         }
         if(s_box.getSelectedItemPosition()== 1){
             iv_color = (ImageView) findViewById(R.id.iv_color1);
+            soundValue1 = tempColor;
         }
         if(s_box.getSelectedItemPosition()== 2){
             iv_color = (ImageView) findViewById(R.id.iv_color2);
+            soundValue2 = tempColor;
         }
     }
 
@@ -165,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                     G = Color.green(finalColor);
                     B = Color.blue(finalColor);
                     tv_color1.setText("Alpha: " + A +"Color: "+ R + ", "+ G +", "+ B);
-                    updateBoxChose();
+                    updateBoxChose(tempColor);
                     iv_color.setBackgroundColor(finalColor);
                 }
             }
