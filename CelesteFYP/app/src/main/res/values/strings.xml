@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CelesteFYP</string>
+    <string-array name="ChooseBox">
+        <item>Box 1</item>
+        <item>Box 2</item>
+        <item>Box 3</item>
+    </string-array>
+</resources>
