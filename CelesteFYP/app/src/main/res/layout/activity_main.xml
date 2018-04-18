@@ -51,7 +51,7 @@
             android:layout_alignLeft="@+id/iv_image"
             android:layout_alignParentBottom="true"
             android:layout_alignStart="@+id/iv_image"
-            android:text="asdas"
+            android:text="BT not connected"
             android:textSize="24dp" />
 
         <ImageView

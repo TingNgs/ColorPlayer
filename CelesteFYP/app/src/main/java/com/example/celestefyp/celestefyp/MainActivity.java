@@ -43,9 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 1;
     int soundValue0=0,soundValue1=0,soundValue2=0;
     boolean soundPlayer = true;
+    boolean deviceConnected = false;
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
     TextView tv_color;
-    Button b_pick,b_photo;
+    Button b_photo;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
@@ -69,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                tv_color.setText(sc.getColorName(soundValue0));
+                String colorName = sc.getColorName(soundValue0);
+                tv_color.setText(colorName);
+                //outPutToArduino(clolrName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -80,7 +83,9 @@ public class MainActivity extends AppCompatActivity {
         iv_color1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                tv_color.setText(sc.getColorName(soundValue1));
+                String colorName = sc.getColorName(soundValue1);
+                tv_color.setText(colorName);
+                outPutToArduino(colorName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -91,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
         iv_color2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                tv_color.setText(sc.getColorName(soundValue2));
+                String colorName = sc.getColorName(soundValue2);
+                tv_color.setText(colorName);
+                outPutToArduino(colorName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
@@ -113,23 +120,12 @@ public class MainActivity extends AppCompatActivity {
                 R.array.ChooseBox,
                 android.R.layout.simple_spinner_dropdown_item);
         s_box.setAdapter(boxList);
-
-
-        /*b_pick.setOnClickListener(new View.OnClickListener(){
-            @Override2
-            public void onClick(View view) {
-
-            }
-        });
-
-        iv_image.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-
-                return true;
-            }
-        });*/
+        if(BTinit()) {
+            tv_color.setText("BTinti");
+            if (BTconnect())
+                tv_color.setText("BT connected");
+                deviceConnected = true;
+        }
     }
 
     public boolean BTinit()
@@ -156,9 +152,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
+            String name = "DESKTOP-5T73TKI";
             for (BluetoothDevice iterator : bondedDevices)
             {
-                if(iterator.getAddress().equals(iterator.getName()))
+                if(name.equals(iterator.getName()))
                 {
                     device=iterator;
                     found=true;
@@ -168,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return found;
     }
-
     public boolean BTconnect()
     {
         boolean connected=true;
@@ -181,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(connected)
         {
+
             try {
                 outputStream=socket.getOutputStream();
             } catch (IOException e) {
@@ -265,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
             soundValue2 = tempColor;
         }
     }
+
     public void outPutToArduino(String colorName){
         colorName.concat("\n");
         try {
@@ -277,8 +275,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BTinit();
-        BTconnect();
         //super.onActivityResult(requestCode, resultCode, data);
         if(this.requestCode == requestCode && resultCode == RESULT_OK){
             Bitmap bitmap = (Bitmap)data.getExtras().get("data");
