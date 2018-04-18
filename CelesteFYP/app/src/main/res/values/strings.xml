@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CelesteFYP</string>
+    <string name="app_name">Colorppella</string>
     <string-array name="ChooseBox">
         <item>Box 1</item>
         <item>Box 2</item>

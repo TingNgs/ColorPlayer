@@ -8,60 +8,54 @@ import android.graphics.Color;
 
 public class SevenColor {
     public int getSevenColor(int pixelColor){
-        double tempD = getDistance(pixelColor,255,0,0);
+        double tempD = getDistance(pixelColor,254,196,195);
         int tempColor = 1;
-        if(getDistance(pixelColor,255,165,0)<tempD){
-            tempD = getDistance(pixelColor,255,165,0);
+        if(getDistance(pixelColor,255,243,140)<tempD){
+            tempD = getDistance(pixelColor,255,243,140);
             tempColor=2;
         }
-        if(getDistance(pixelColor,255,255,0)<tempD){
-            tempD = getDistance(pixelColor,255,255,0);
+        if(getDistance(pixelColor,172,225,240)<tempD){
+            tempD = getDistance(pixelColor,172,225,240);
             tempColor=3;
         }
-        if(getDistance(pixelColor,0,255,0)<tempD){
-            tempD = getDistance(pixelColor,0,255,0);
+        if(getDistance(pixelColor,205,176,254)<tempD){
+            tempD = getDistance(pixelColor,205,176,254);
             tempColor=4;
         }
-        if(getDistance(pixelColor,0,255,255)<tempD){
-            tempD = getDistance(pixelColor,0,255,255);
+        if(getDistance(pixelColor,255,181,155)<tempD){
+            tempD = getDistance(pixelColor,255,181,155);
             tempColor=5;
         }
-        if(getDistance(pixelColor,0, 0,255)<tempD){
-            tempD = getDistance(pixelColor,0, 0,255);
+        if(getDistance(pixelColor,108, 222,163)<tempD){
+            tempD = getDistance(pixelColor,108, 222,163);
             tempColor=6;
         }
-        if(getDistance(pixelColor,43, 0,255)<tempD){
-            tempD = getDistance(pixelColor,43, 0,255);
+        if(getDistance(pixelColor,177, 177,177)<tempD){
+            tempD = getDistance(pixelColor,177, 177,177);
             tempColor=7;
-        }
-        if(getDistance(pixelColor,87, 0,255)<tempD){
-            tempD = getDistance(pixelColor,87, 0,255);
-            tempColor=8;
         }
         return tempColor;
     }
     public int getColorValue(int tempColor){
         int color=0;
-        if(tempColor==1) color = Color.parseColor("#FF0000");
-        if(tempColor==2) color = Color.parseColor("#FFA500");
-        if(tempColor==3) color = Color.parseColor("#FFFF00");
-        if(tempColor==4) color = Color.parseColor("#008000");
-        if(tempColor==5) color = Color.parseColor("#00FFFF");
-        if(tempColor==6) color = Color.parseColor("#0000FF");
-        if(tempColor==7) color = Color.parseColor("#4B0082");
-        if(tempColor==8) color = Color.parseColor("#800880");
+        if(tempColor==1) color = Color.parseColor("#fec4c3");
+        if(tempColor==2) color = Color.parseColor("#fff38c");
+        if(tempColor==3) color = Color.parseColor("#ace1f0");
+        if(tempColor==4) color = Color.parseColor("#cdb0fe");
+        if(tempColor==5) color = Color.parseColor("#ffb59b");
+        if(tempColor==6) color = Color.parseColor("#6cdea3");
+        if(tempColor==7) color = Color.parseColor("#b1b1b1");
         return color;
     }
 
     public String getColorName(int tempColor){
         if(tempColor==1) return "Red";
-        if(tempColor==2) return "Orange";
-        if(tempColor==3) return "Yellow";
-        if(tempColor==4) return "Green";
-        if(tempColor==5) return "Blue";
-        if(tempColor==6) return "Six";
-        if(tempColor==7) return "Seven";
-        if(tempColor==8) return "Eight";
+        if(tempColor==2) return "Yellow";
+        if(tempColor==3) return "Blue";
+        if(tempColor==4) return "Purple";
+        if(tempColor==5) return "Orange";
+        if(tempColor==6) return "Green";
+        if(tempColor==7) return "Silver";
         return "Error";
     }
 
