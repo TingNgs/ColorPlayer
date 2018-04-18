@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                     audioRecorder.start();
                 } catch (IllegalStateException ise) {
                     // make something ...
-                    Toast.makeText(getApplicationContext(), "fail 1", Toast.LENGTH_LONG).show();
                 } catch (IOException ioe) {
                     // make something
                 }
@@ -189,11 +188,12 @@ public class MainActivity extends AppCompatActivity {
                 R.array.ChooseBox,
                 android.R.layout.simple_spinner_dropdown_item);
         s_box.setAdapter(boxList);
+        tv_color.setText("BT not connected");
         if(BTinit()) {
-            tv_color.setText("BTinti");
-            if (BTconnect())
+            if (BTconnect()) {
                 tv_color.setText("BT connected");
                 deviceConnected = true;
+            }
         }
     }
 

@@ -8,32 +8,46 @@ import android.graphics.Color;
 
 public class SevenColor {
     public int getSevenColor(int pixelColor){
-        int tempColor = 0;
-        double tempD = getDistance(pixelColor,254,196,195);
-        if(getDistance(pixelColor,255,243,140)<tempD){
-            tempD = getDistance(pixelColor,255,243,140);
-            tempColor=2;
+        int tempColor = 2;
+        double tempD = getDistance(pixelColor,255,243,140);
+        if(getDistance(pixelColor,254,196,195)<tempD){
+            if(Color.red(pixelColor)>Color.blue(pixelColor) && Color.red(pixelColor)>Color.blue(pixelColor) && Math.abs(Color.red(pixelColor)-Color.green(pixelColor))>15){
+                tempD = getDistance(pixelColor,254,196,195);
+                tempColor=1;
+            }
         }
+
         if(getDistance(pixelColor,172,225,240)<tempD){
-            tempD = getDistance(pixelColor,172,225,240);
-            tempColor=3;
+            if(Color.red(pixelColor)<Color.green(pixelColor) && Color.red(pixelColor)<Color.blue(pixelColor)) {
+                tempD = getDistance(pixelColor, 172, 225, 240);
+                tempColor = 3;
+            }
         }
         if(getDistance(pixelColor,205,176,254)<tempD){
-            tempD = getDistance(pixelColor,205,176,254);
-            tempColor=4;
+            if(Color.red(pixelColor)>Color.green(pixelColor) && Color.blue(pixelColor)>Color.green(pixelColor)) {
+                tempD = getDistance(pixelColor, 205, 176, 254);
+                tempColor = 4;
+            }
         }
         if(getDistance(pixelColor,255,181,155)<tempD){
-            tempD = getDistance(pixelColor,255,181,155);
-            tempColor=5;
+            if(Color.red(pixelColor)>Color.green(pixelColor) && Color.red(pixelColor)>Color.blue(pixelColor) &&  Math.abs(Color.red(pixelColor)-Color.green(pixelColor))>15&&  Math.abs(Color.blue(pixelColor)-Color.green(pixelColor))<30) {
+                tempD = getDistance(pixelColor, 255, 181, 155);
+                tempColor = 5;
+            }
         }
         if(getDistance(pixelColor,108, 222,163)<tempD){
-            tempD = getDistance(pixelColor,108, 222,163);
-            tempColor=6;
+            if(Color.green(pixelColor)>Color.red(pixelColor) && Color.green(pixelColor)>Color.blue(pixelColor)) {
+                tempD = getDistance(pixelColor, 108, 222, 163);
+                tempColor = 6;
+            }
         }
         if(getDistance(pixelColor,177, 177,177)<tempD){
-            //tempD = getDistance(pixelColor,177, 177,177);
-            tempColor=7;
+            if( Math.abs(Color.red(pixelColor)-Color.blue(pixelColor))<10 && Math.abs(Color.red(pixelColor)-Color.green(pixelColor))<10&& Math.abs(Color.blue(pixelColor)-Color.green(pixelColor))<10){
+                //tempD = getDistance(pixelColor,177, 177,177);
+                tempColor=7;
+            }
         }
+
         /*if(inRangeOf(pixelColor,254,196,195)) tempColor = 1;
         else if(inRangeOf(pixelColor,255,243,140)) tempColor = 2;
         else if(inRangeOf(pixelColor,172,225,240)) tempColor = 3;
@@ -70,7 +84,7 @@ public class SevenColor {
         double rd = (Color.red(pixelColor)-r)*(Color.red(pixelColor)-r);
         double gd = (Color.green(pixelColor)-g)*(Color.green(pixelColor)-g);
         double bd = (Color.blue(pixelColor)-b)*(Color.blue(pixelColor)-b);
-        return Math.sqrt((rd+gd+bd));
+        return (rd+gd+bd);
     }
 
     private boolean inRangeOf(int pixelColor,double or,double ob,double og){
