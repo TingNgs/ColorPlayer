@@ -36,6 +36,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    private final String btDeviceName = "DESKTOP-5T73TKI";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue0);
                 tv_color.setText(colorName);
-                //outPutToArduino(clolrName);
+                //if(deviceConnected)outPutToArduino(colorName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue1);
                 tv_color.setText(colorName);
-                outPutToArduino(colorName);
+                //if(deviceConnected)outPutToArduino(colorName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue2);
                 tv_color.setText(colorName);
-                outPutToArduino(colorName);
+                //if(deviceConnected)outPutToArduino(colorName);
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
@@ -152,10 +153,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            String name = "DESKTOP-5T73TKI";
+
             for (BluetoothDevice iterator : bondedDevices)
             {
-                if(name.equals(iterator.getName()))
+                if(btDeviceName.equals(iterator.getName()))
                 {
                     device=iterator;
                     found=true;
