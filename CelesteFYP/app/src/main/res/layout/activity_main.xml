@@ -43,14 +43,23 @@
             tools:layout_editor_absoluteX="42dp"
             tools:layout_editor_absoluteY="55dp" />
 
-
         <TextView
-            android:id="@+id/tv_color"
+            android:id="@+id/tv_colorRGB"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/iv_image"
             android:layout_alignParentBottom="true"
             android:layout_alignStart="@+id/iv_image"
+            android:text=""
+            android:textSize="24dp" />
+
+        <TextView
+            android:id="@+id/tv_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/iv_color0"
+            android:layout_alignStart="@+id/iv_color0"
+            android:layout_below="@+id/iv_color0"
             android:text="BT not connected"
             android:textSize="24dp" />
 

@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     boolean deviceConnected = false;
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
     TextView tv_color;
+    TextView tv_colorRGB;
     Button b_photo;
     Spinner s_box;
     private final int requestCode = 20;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color1 = (ImageView) findViewById(R.id.iv_color1);
         iv_color2 = (ImageView) findViewById(R.id.iv_color2);
         tv_color = (TextView) findViewById(R.id.tv_color);
+        tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
         //b_pick = (Button) findViewById(R.id.b_pick);
         b_photo = (Button) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
@@ -299,13 +301,9 @@ public class MainActivity extends AppCompatActivity {
                     int R = Color.red(pixelColor);
                     int G = Color.green(pixelColor);
                     int B = Color.blue(pixelColor);
-
+                    tv_colorRGB.setText("R:"+R+" G:"+G+" B:"+B);
                     int tempColor = sc.getSevenColor(pixelColor);
                     int finalColor = sc.getColorValue(tempColor);
-                    A = Color.alpha(finalColor);
-                    R = Color.red(finalColor);
-                    G = Color.green(finalColor);
-                    B = Color.blue(finalColor);
 
                     updateBoxChose(tempColor);
                     iv_color.setBackgroundColor(finalColor);

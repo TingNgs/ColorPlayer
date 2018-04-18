@@ -31,7 +31,7 @@ public class SevenColor {
             tempColor=6;
         }
         if(getDistance(pixelColor,177, 177,177)<tempD){
-            tempD = getDistance(pixelColor,177, 177,177);
+            //tempD = getDistance(pixelColor,177, 177,177);
             tempColor=7;
         }
         return tempColor;
