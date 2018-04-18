@@ -8,8 +8,8 @@ import android.graphics.Color;
 
 public class SevenColor {
     public int getSevenColor(int pixelColor){
+        int tempColor = 0;
         double tempD = getDistance(pixelColor,254,196,195);
-        int tempColor = 1;
         if(getDistance(pixelColor,255,243,140)<tempD){
             tempD = getDistance(pixelColor,255,243,140);
             tempColor=2;
@@ -34,6 +34,13 @@ public class SevenColor {
             //tempD = getDistance(pixelColor,177, 177,177);
             tempColor=7;
         }
+        /*if(inRangeOf(pixelColor,254,196,195)) tempColor = 1;
+        else if(inRangeOf(pixelColor,255,243,140)) tempColor = 2;
+        else if(inRangeOf(pixelColor,172,225,240)) tempColor = 3;
+        else if(inRangeOf(pixelColor,205,176,254)) tempColor = 4;
+        else if(inRangeOf(pixelColor,255,181,155)) tempColor = 5;
+        else if(inRangeOf(pixelColor,108, 222,163)) tempColor = 6;
+        else if(inRangeOf(pixelColor,177, 177,177)) tempColor = 7;*/
         return tempColor;
     }
     public int getColorValue(int tempColor){
@@ -64,5 +71,23 @@ public class SevenColor {
         double gd = (Color.green(pixelColor)-g)*(Color.green(pixelColor)-g);
         double bd = (Color.blue(pixelColor)-b)*(Color.blue(pixelColor)-b);
         return Math.sqrt((rd+gd+bd));
+    }
+
+    private boolean inRangeOf(int pixelColor,double or,double ob,double og){
+        double r = Color.red(pixelColor);
+        double g = Color.red(pixelColor);
+        double b = Color.red(pixelColor);
+        if(inpresOf((r-g)/g,(or-og)/og)){
+            if(inpresOf((r-b)/b,(or-ob)/ob)){
+                if(inpresOf((g-b)/b,(og-ob)/ob)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean inpresOf(double x,double y){
+        if(Math.abs((Math.abs(x) -Math.abs(y)))*100 < 30) return true;
+        else return false;
     }
 }

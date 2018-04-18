@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private final String btDeviceName = "DESKTOP-5T73TKI";
+    private final String btDeviceName = "HC-05";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -81,22 +81,26 @@ public class MainActivity extends AppCompatActivity {
 
         stop.setEnabled(false);
 
-        String outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
 
-        MediaRecorder myAudioRecorder = new MediaRecorder();
-        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        myAudioRecorder.setOutputFile(outputFile);
+
+
+
 
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+                audioRecorder = new MediaRecorder();
+                audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                audioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+                audioRecorder.setOutputFile(outputFile);
                 try {
                     audioRecorder.prepare();
                     audioRecorder.start();
                 } catch (IllegalStateException ise) {
                     // make something ...
+                    Toast.makeText(getApplicationContext(), "fail 1", Toast.LENGTH_LONG).show();
                 } catch (IOException ioe) {
                     // make something
                 }
@@ -109,12 +113,17 @@ public class MainActivity extends AppCompatActivity {
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try{
                 audioRecorder.stop();
                 audioRecorder.release();
                 audioRecorder = null;
+                }catch (final Exception e) {
+                    audioRecorder = null;
+                }
                 record.setEnabled(true);
                 stop.setEnabled(false);
                 Toast.makeText(getApplicationContext(), "Audio Recorder stopped", Toast.LENGTH_LONG).show();
+
             }
         });
 
@@ -123,7 +132,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue0);
                 tv_color.setText(colorName);
-                //if(deviceConnected)outPutToArduino(colorName);
+                if(deviceConnected) {
+                    outPutToArduino(colorName);
+                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
+                }
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -136,7 +148,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue1);
                 tv_color.setText(colorName);
-                //if(deviceConnected)outPutToArduino(colorName);
+                if(deviceConnected) {
+                    outPutToArduino(colorName);
+                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
+                }
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -149,7 +164,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue2);
                 tv_color.setText(colorName);
-                //if(deviceConnected)outPutToArduino(colorName);
+                if(deviceConnected) {
+                    outPutToArduino(colorName);
+                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
+                }
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
