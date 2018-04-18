@@ -36,7 +36,7 @@
         <ImageView
             android:id="@+id/iv_image"
             android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_height="200dp"
             android:layout_below="@+id/b_photo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="12dp"
@@ -96,6 +96,24 @@
             android:background="@android:color/black"
             tools:layout_editor_absoluteX="98dp"
             tools:layout_editor_absoluteY="372dp" />
+
+        <Button
+            android:id="@+id/record_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/tv_color"
+            android:layout_alignStart="@+id/tv_color"
+            android:layout_below="@+id/tv_color"
+            android:layout_marginBottom="56dp"
+            android:text="Record" />
+
+        <Button
+            android:id="@+id/stop_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_color"
+            android:layout_centerHorizontal="true"
+            android:text="Stop" />
     </RelativeLayout>
 
 

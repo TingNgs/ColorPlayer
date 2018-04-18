@@ -4,6 +4,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -11,13 +12,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,6 +39,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private final String btDeviceName = "DESKTOP-5T73TKI";
     private BluetoothDevice device;
@@ -48,11 +53,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
     TextView tv_color;
     TextView tv_colorRGB;
-    Button b_photo;
+    Button b_photo,record,stop;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
     Bitmap bitmap ;
+    private String outputFile;
+    private MediaRecorder audioRecorder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +76,47 @@ public class MainActivity extends AppCompatActivity {
         //b_pick = (Button) findViewById(R.id.b_pick);
         b_photo = (Button) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
+        record = (Button) findViewById(R.id.record_button);
+        stop = (Button) findViewById(R.id.stop_button);
 
+        stop.setEnabled(false);
+
+        String outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+
+        MediaRecorder myAudioRecorder = new MediaRecorder();
+        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+        myAudioRecorder.setOutputFile(outputFile);
+
+        record.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    audioRecorder.prepare();
+                    audioRecorder.start();
+                } catch (IllegalStateException ise) {
+                    // make something ...
+                } catch (IOException ioe) {
+                    // make something
+                }
+                record.setEnabled(false);
+                stop.setEnabled(true);
+                Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioRecorder.stop();
+                audioRecorder.release();
+                audioRecorder = null;
+                record.setEnabled(true);
+                stop.setEnabled(false);
+                Toast.makeText(getApplicationContext(), "Audio Recorder stopped", Toast.LENGTH_LONG).show();
+            }
+        });
 
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
