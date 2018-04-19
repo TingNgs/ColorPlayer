@@ -81,11 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
         stop.setEnabled(false);
 
-
-
-
-
-
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
