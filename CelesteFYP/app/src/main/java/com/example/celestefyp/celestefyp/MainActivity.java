@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -60,10 +61,11 @@ public class MainActivity extends AppCompatActivity {
     int soundValue0=0,soundValue1=0,soundValue2=0;
     boolean soundPlayer = true;
     boolean deviceConnected = false;
-    ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
+    boolean resetting = false;
+    ImageView iv_image, iv_color,iv_color0, iv_color1, iv_color2;
     TextView tv_color ,tv_fre_need,tv_fre_did;
     TextView tv_colorRGB;
-    Button b_photo,record,stop;
+    Button b_photo,record,stop,reset;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
@@ -81,14 +83,13 @@ public class MainActivity extends AppCompatActivity {
     private int bufferSize=0;
     private AudioRecord mAudioRecord;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        soundValue0=0;soundValue1=0;soundValue2=0;
         iv_image = (ImageView) findViewById(R.id.iv_image);
-        iv_color = (ImageView) findViewById(R.id.iv_color0);
         iv_color0 = (ImageView) findViewById(R.id.iv_color0);
         iv_color1 = (ImageView) findViewById(R.id.iv_color1);
         iv_color2 = (ImageView) findViewById(R.id.iv_color2);
@@ -96,17 +97,17 @@ public class MainActivity extends AppCompatActivity {
         tv_fre_need = (TextView) findViewById(R.id.tv_Fre_need);
         tv_fre_did = (TextView) findViewById(R.id.tv_Fre_did);
         tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
-        //b_pick = (Button) findViewById(R.id.b_pick);
         b_photo = (Button) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
         record = (Button) findViewById(R.id.record_button);
+        reset = (Button) findViewById(R.id.reset);
         stop = (Button) findViewById(R.id.stop_button);
-
         stop.setEnabled(false);
 
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(resetting) return;
                 record.setEnabled(false);
                 stop.setEnabled(true);
                 startRecord();
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(resetting) return;
                 stopRecording();
                 frequencyAnalyse();
                 record.setEnabled(true);
@@ -127,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                if(resetting) return;
                 String colorName = sc.getColorName(soundValue0);
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue0);
@@ -142,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                if(resetting) return;
                 String colorName = sc.getColorName(soundValue1);
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue1);
@@ -157,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         iv_color2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                if(resetting) return;
                 String colorName = sc.getColorName(soundValue2);
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue2);
@@ -173,12 +178,74 @@ public class MainActivity extends AppCompatActivity {
         b_photo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                if(resetting) return;
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
 
             }
         });
 
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetting = true;
+                tv_color.setText("Resetting");
+                iv_image.setImageBitmap(null);
+                iv_color0.setBackgroundColor(Color.parseColor("#000000"));
+                iv_color1.setBackgroundColor(Color.parseColor("#000000"));
+                iv_color2.setBackgroundColor(Color.parseColor("#000000"));
+                stop.setEnabled(false);
+                record.setEnabled(true);
+                tv_fre_need.setText("Need:");
+                tv_fre_did.setText("Recorded:");
+                tv_colorRGB.setText("R:/ G:/ B:/");
+                s_box.setSelection(0);
+                if(BTinit()) {
+                    if (BTconnect()) {
+                        tv_color.setText("BT connected");
+                        deviceConnected = true;
+                    }
+                }
+                if(!(tv_color.getText().toString().equals("BT connected")))tv_color.setText("BT not connected");
+                resetting = false;
+            }
+        });
+
+        iv_image.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(resetting)  return true;
+                if (!(iv_image.getDrawable() == null)) {
+                    if (iv_image.getDrawingCache() != null) {
+                        bitmap.recycle();
+                        bitmap = null;
+                    }
+                    iv_image.setDrawingCacheEnabled(true);
+                    iv_image.setDrawingCacheEnabled(true);
+                    iv_image.buildDrawingCache();
+                    bitmap = Bitmap.createBitmap(iv_image.getDrawingCache());
+                    iv_image.setDrawingCacheEnabled(false);
+                    int touchX = (int) event.getX();
+                    int touchY = (int) event.getY();
+                    if (touchX > 0 && touchY > 0 && touchX < bitmap.getWidth() && touchY < bitmap.getHeight()) {
+                        int pixelColor = bitmap.getPixel(touchX, touchY);
+
+                        int A = Color.alpha(pixelColor);
+                        int R = Color.red(pixelColor);
+                        int G = Color.green(pixelColor);
+                        int B = Color.blue(pixelColor);
+                        tv_colorRGB.setText("R:"+R+" G:"+G+" B:"+B);
+                        int tempColor = sc.getSevenColor(pixelColor);
+                        int finalColor = sc.getColorValue(tempColor);
+
+                        updateBoxChose(tempColor);
+                        iv_color.setBackgroundColor(finalColor);
+                    }
+                }
+                return true;
+            }
+
+        });
         ArrayAdapter<CharSequence> boxList = ArrayAdapter.createFromResource(MainActivity.this,
                 R.array.ChooseBox,
                 android.R.layout.simple_spinner_dropdown_item);
@@ -337,11 +404,11 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         if(this.requestCode == requestCode && resultCode == RESULT_OK){
-            Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+            bitmap = (Bitmap)data.getExtras().get("data");
             iv_image.setImageBitmap(bitmap);
-            if (!(iv_image.getDrawable() == null)) {
+            /*if (!(iv_image.getDrawable() == null)) {
                 if (iv_image.getDrawingCache() != null) {
                     bitmap.recycle();
                     bitmap = null;
@@ -367,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
                     updateBoxChose(tempColor);
                     iv_color.setBackgroundColor(finalColor);
                 }
-            }
+            }*/
         }
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
@@ -472,7 +539,7 @@ public class MainActivity extends AppCompatActivity {
 
             //FFT分析得到频率
             int frequence = (int)FFT.GetFrequency(data);
-            tv_fre_did.setText("Did:"+String.valueOf(frequence));
+            tv_fre_did.setText("Recorded:"+String.valueOf(frequence));
             int RESOLUTION = 100; //Hz，误差
             if(Math.abs(frequence - FREQUENCY)<RESOLUTION){
                 //测试通过
