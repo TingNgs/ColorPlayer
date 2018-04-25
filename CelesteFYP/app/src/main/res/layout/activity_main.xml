@@ -6,9 +6,12 @@
     android:layout_height="match_parent"
     android:screenOrientation="portrait"
     tools:context="com.example.celestefyp.celestefyp.MainActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <Spinner
             android:id="@+id/s_box"
@@ -104,7 +107,6 @@
             android:layout_alignLeft="@+id/tv_color"
             android:layout_alignStart="@+id/tv_color"
             android:layout_below="@+id/tv_color"
-            android:layout_marginBottom="56dp"
             android:text="Record" />
 
         <Button
@@ -112,8 +114,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_color"
-            android:layout_centerHorizontal="true"
+            android:layout_toEndOf="@+id/iv_color1"
+            android:layout_toRightOf="@+id/iv_color1"
             android:text="Stop" />
+
+        <TextView
+            android:id="@+id/tv_Fre_need"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stop_button"
+            android:layout_toEndOf="@+id/tv_colorRGB"
+            android:layout_toRightOf="@+id/tv_colorRGB"
+            android:text="Need:"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/tv_Fre_did"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_Fre_need"
+            android:layout_toEndOf="@+id/tv_colorRGB"
+            android:layout_toRightOf="@+id/tv_colorRGB"
+            android:text="Did:"
+            android:textSize="20dp" />
     </RelativeLayout>
 
 

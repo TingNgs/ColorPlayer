@@ -47,14 +47,6 @@ public class SevenColor {
                 tempColor=7;
             }
         }
-
-        /*if(inRangeOf(pixelColor,254,196,195)) tempColor = 1;
-        else if(inRangeOf(pixelColor,255,243,140)) tempColor = 2;
-        else if(inRangeOf(pixelColor,172,225,240)) tempColor = 3;
-        else if(inRangeOf(pixelColor,205,176,254)) tempColor = 4;
-        else if(inRangeOf(pixelColor,255,181,155)) tempColor = 5;
-        else if(inRangeOf(pixelColor,108, 222,163)) tempColor = 6;
-        else if(inRangeOf(pixelColor,177, 177,177)) tempColor = 7;*/
         return tempColor;
     }
     public int getColorValue(int tempColor){
@@ -79,7 +71,16 @@ public class SevenColor {
         if(tempColor==7) return "Silver";
         return "Error";
     }
-
+    public int getColorFre(int tempColor){
+        if(tempColor==1) return 1750;
+        if(tempColor==2) return 2980;
+        if(tempColor==3) return 3140;
+        if(tempColor==4) return 1170;
+        if(tempColor==5) return 2640;
+        if(tempColor==6) return 1400;
+        if(tempColor==7) return 1560;
+        return 0;
+    }
     private double getDistance(int pixelColor,int r,int g,int b){
         double rd = (Color.red(pixelColor)-r)*(Color.red(pixelColor)-r);
         double gd = (Color.green(pixelColor)-g)*(Color.green(pixelColor)-g);

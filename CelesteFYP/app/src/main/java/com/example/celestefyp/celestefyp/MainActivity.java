@@ -11,10 +11,16 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -32,13 +38,17 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private final String btDeviceName = "HC-05";
@@ -51,15 +61,26 @@ public class MainActivity extends AppCompatActivity {
     boolean soundPlayer = true;
     boolean deviceConnected = false;
     ImageView iv_image, iv_color, iv_color0, iv_color1, iv_color2;
-    TextView tv_color;
+    TextView tv_color ,tv_fre_need,tv_fre_did;
     TextView tv_colorRGB;
     Button b_photo,record,stop;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
     Bitmap bitmap ;
-    private String outputFile;
-    private MediaRecorder audioRecorder;
+    File recordfile ;
+    /*MediaRecorder audioRecorder;
+    MediaPlayer mediaPlayer;
+    boolean isPlaying = false;
+    File recodeFile;*/
+    private static final String FILE_NAME = "MainMicRecord";
+    private static final int SAMPLE_RATE = 22050;//Hz，采样频率
+    int FREQUENCY;
+    private static final long RECORD_TIME = 2000;
+    private File mSampleFile;
+    private int bufferSize=0;
+    private AudioRecord mAudioRecord;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         iv_color1 = (ImageView) findViewById(R.id.iv_color1);
         iv_color2 = (ImageView) findViewById(R.id.iv_color2);
         tv_color = (TextView) findViewById(R.id.tv_color);
+        tv_fre_need = (TextView) findViewById(R.id.tv_Fre_need);
+        tv_fre_did = (TextView) findViewById(R.id.tv_Fre_did);
         tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
         //b_pick = (Button) findViewById(R.id.b_pick);
         b_photo = (Button) findViewById(R.id.b_photo);
@@ -84,39 +107,19 @@ public class MainActivity extends AppCompatActivity {
         record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
-                audioRecorder = new MediaRecorder();
-                audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                audioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-                audioRecorder.setOutputFile(outputFile);
-                try {
-                    audioRecorder.prepare();
-                    audioRecorder.start();
-                } catch (IllegalStateException ise) {
-                    // make something ...
-                } catch (IOException ioe) {
-                    // make something
-                }
                 record.setEnabled(false);
                 stop.setEnabled(true);
-                Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+                startRecord();
             }
         });
 
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                audioRecorder.stop();
-                audioRecorder.release();
-                audioRecorder = null;
-                }catch (final Exception e) {
-                    audioRecorder = null;
-                }
+                stopRecording();
+                frequencyAnalyse();
                 record.setEnabled(true);
                 stop.setEnabled(false);
-                Toast.makeText(getApplicationContext(), "Audio Recorder stopped", Toast.LENGTH_LONG).show();
 
             }
         });
@@ -126,10 +129,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue0);
                 tv_color.setText(colorName);
-                if(deviceConnected) {
-                    outPutToArduino(colorName);
-                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
-                }
+                int temp_fre =  sc.getColorFre(soundValue0);
+                FREQUENCY = temp_fre;
+                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -142,10 +144,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue1);
                 tv_color.setText(colorName);
-                if(deviceConnected) {
-                    outPutToArduino(colorName);
-                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
-                }
+                int temp_fre =  sc.getColorFre(soundValue1);
+                FREQUENCY = temp_fre;
+                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -158,10 +159,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String colorName = sc.getColorName(soundValue2);
                 tv_color.setText(colorName);
-                if(deviceConnected) {
-                    outPutToArduino(colorName);
-                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
-                }
+                int temp_fre =  sc.getColorFre(soundValue2);
+                FREQUENCY = temp_fre;
+                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
@@ -335,8 +335,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -382,5 +380,118 @@ public class MainActivity extends AppCompatActivity {
             iv_image.setImageBitmap(BitmapFactory.decodeFile(picturePath));
         }
     }
+
+    private void startRecord() {
+        try {
+            mSampleFile = new File(getFilesDir()+"/"+FILE_NAME);
+            if(mSampleFile.exists()){
+                if(!mSampleFile.delete()){
+                    return;
+                }
+            }
+            if(!mSampleFile.createNewFile()){
+                return;
+            }
+        } catch(IOException e) {
+            return;
+        }
+        //为了方便，这里只录制单声道
+        //如果是双声道，得到的数据是一左一右，注意数据的保存和处理
+        bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT);
+        mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSize);
+        mAudioRecord.startRecording();
+        new Thread(new AudioRecordThread()).start();
+    }
+
+    private class  AudioRecordThread implements Runnable{
+        @Override
+        public void run() {
+            //将录音数据写入文件
+            short[] audiodata = new short[bufferSize/2];
+            DataOutputStream fos = null;
+            try {
+                fos = new DataOutputStream( new FileOutputStream(mSampleFile));
+                int readSize;
+                while (mAudioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING){
+                    readSize = mAudioRecord.read(audiodata,0,audiodata.length);
+                    if(AudioRecord.ERROR_INVALID_OPERATION != readSize){
+                        for(int i = 0;i<readSize;i++){
+                            fos.writeShort(audiodata[i]);
+                            fos.flush();
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                if(fos!=null){
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //在这里release
+                mAudioRecord.release();
+                mAudioRecord = null;
+            }
+        }
+    };
+
+    //在这里stop的时候先不要release
+    private void stopRecording() {
+        mAudioRecord.stop();
+    }
+
+    //对录音文件进行分析
+    private void frequencyAnalyse(){
+        if(mSampleFile == null){
+            Toast.makeText(getApplicationContext(), "NULL", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            DataInputStream inputStream = new DataInputStream(new FileInputStream(mSampleFile));
+            //16bit采样，因此用short[]
+            //如果是8bit采样，这里直接用byte[]
+            //从文件中读出一段数据，这里长度是SAMPLE_RATE，也就是1s采样的数据
+            short[] buffer=new short[SAMPLE_RATE];
+            for(int i = 0;i<buffer.length;i++){
+                buffer[i] = inputStream.readShort();
+            }
+            short[] data = new short[FFT.FFT_N];
+
+            //为了数据稳定，在这里FFT分析只取最后的FFT_N个数据
+            System.arraycopy(buffer, buffer.length - FFT.FFT_N,
+                    data, 0, FFT.FFT_N);
+
+            //FFT分析得到频率
+            int frequence = (int)FFT.GetFrequency(data);
+            tv_fre_did.setText("Did:"+String.valueOf(frequence));
+            int RESOLUTION = 100; //Hz，误差
+            if(Math.abs(frequence - FREQUENCY)<RESOLUTION){
+                //测试通过
+                if(deviceConnected) {
+                    String colorName = tv_color.getText().toString();
+                    outPutToArduino(colorName);
+                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Pass", Toast.LENGTH_LONG).show();
+                }
+            }else{
+                //测试失败
+                Toast.makeText(getApplicationContext(), "FAIL", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "At least need to record 1 second", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
 
