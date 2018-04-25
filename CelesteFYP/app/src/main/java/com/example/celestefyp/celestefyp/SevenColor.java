@@ -62,15 +62,16 @@ public class SevenColor {
     }
 
     public String getColorName(int tempColor){
-        if(tempColor==1) return "R";
-        if(tempColor==2) return "Y";
-        if(tempColor==3) return "B";
-        if(tempColor==4) return "P";
-        if(tempColor==5) return "O";
-        if(tempColor==6) return "G";
-        if(tempColor==7) return "S";
+        if(tempColor==1) return "Red";
+        if(tempColor==2) return "Yellow";
+        if(tempColor==3) return "Blue";
+        if(tempColor==4) return "Purple";
+        if(tempColor==5) return "Orange";
+        if(tempColor==6) return "Green";
+        if(tempColor==7) return "Silver";
         return "Error";
     }
+
     public int getColorFre(int tempColor){
         if(tempColor==1) return 1750;
         if(tempColor==2) return 2980;

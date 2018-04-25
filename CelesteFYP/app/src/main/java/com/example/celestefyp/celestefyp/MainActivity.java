@@ -545,8 +545,9 @@ public class MainActivity extends AppCompatActivity {
                 //测试通过
                 if(deviceConnected) {
                     String colorName = tv_color.getText().toString();
+                    colorName=colorName.substring(0,1);
                     outPutToArduino(colorName);
-                    Toast.makeText(getApplicationContext(), "Send", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Send : "+colorName, Toast.LENGTH_LONG).show();
                 }else{
                     Toast.makeText(getApplicationContext(), "Pass", Toast.LENGTH_LONG).show();
                 }
