@@ -52,7 +52,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private final String btDeviceName = "HC-05";
+    private final String btDeviceName = "COLORPPELLA";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -200,13 +200,13 @@ public class MainActivity extends AppCompatActivity {
                 tv_fre_did.setText("Recorded:");
                 tv_colorRGB.setText("R:/ G:/ B:/");
                 s_box.setSelection(0);
-                if(BTinit()) {
+                /*if(BTinit()) {
                     if (BTconnect()) {
                         tv_color.setText("BT connected");
                         deviceConnected = true;
                     }
                 }
-                if(!(tv_color.getText().toString().equals("BT connected")))tv_color.setText("BT not connected");
+                if(!(tv_color.getText().toString().equals("BT connected")))tv_color.setText("BT not connected");*/
                 resetting = false;
             }
         });
