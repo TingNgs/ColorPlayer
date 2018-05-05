@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
@@ -82,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
     private File mSampleFile;
     private int bufferSize=0;
     private AudioRecord mAudioRecord;
+    MyHandler mh;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         record = (Button) findViewById(R.id.record_button);
         reset = (Button) findViewById(R.id.reset);
         stop = (Button) findViewById(R.id.stop_button);
+        mh=new MyHandler();
         stop.setEnabled(false);
 
         record.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 record.setEnabled(false);
                 stop.setEnabled(true);
                 startRecord();
+                tv_colorRGB.setText("Start recording");
             }
         });
 
@@ -118,11 +123,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(resetting) return;
-                stopRecording();
-                frequencyAnalyse();
                 record.setEnabled(true);
                 stop.setEnabled(false);
-
+                stopRecording();
+                //frequencyAnalyse();
             }
         });
 
@@ -199,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                 tv_fre_need.setText("Need:");
                 tv_fre_did.setText("Recorded:");
                 tv_colorRGB.setText("R:/ G:/ B:/");
+                tv_color.setText("Reset");
                 s_box.setSelection(0);
                 /*if(BTinit()) {
                     if (BTconnect()) {
@@ -408,33 +413,6 @@ public class MainActivity extends AppCompatActivity {
         if(this.requestCode == requestCode && resultCode == RESULT_OK){
             bitmap = (Bitmap)data.getExtras().get("data");
             iv_image.setImageBitmap(bitmap);
-            /*if (!(iv_image.getDrawable() == null)) {
-                if (iv_image.getDrawingCache() != null) {
-                    bitmap.recycle();
-                    bitmap = null;
-                }
-                iv_image.setDrawingCacheEnabled(true);
-                iv_image.setDrawingCacheEnabled(true);
-                iv_image.buildDrawingCache();
-                bitmap = Bitmap.createBitmap(iv_image.getDrawingCache());
-                iv_image.setDrawingCacheEnabled(false);
-                int touchX = bitmap.getWidth()/2;
-                int touchY = bitmap.getHeight()/2;
-                if (touchX > 0 && touchY > 0 && touchX < bitmap.getWidth() && touchY < bitmap.getHeight()) {
-                    int pixelColor = bitmap.getPixel(touchX, touchY);
-
-                    int A = Color.alpha(pixelColor);
-                    int R = Color.red(pixelColor);
-                    int G = Color.green(pixelColor);
-                    int B = Color.blue(pixelColor);
-                    tv_colorRGB.setText("R:"+R+" G:"+G+" B:"+B);
-                    int tempColor = sc.getSevenColor(pixelColor);
-                    int finalColor = sc.getColorValue(tempColor);
-
-                    updateBoxChose(tempColor);
-                    iv_color.setBackgroundColor(finalColor);
-                }
-            }*/
         }
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
@@ -472,93 +450,95 @@ public class MainActivity extends AppCompatActivity {
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufferSize);
         mAudioRecord.startRecording();
-        new Thread(new AudioRecordThread()).start();
-    }
+        new Thread(new Recording()).start();
 
-    private class  AudioRecordThread implements Runnable{
+    }
+    int bufferSizeInBytes = 1024;
+    short[] buffer = new short[bufferSizeInBytes];
+
+    class Recording extends Thread {
         @Override
         public void run() {
-            //将录音数据写入文件
-            short[] audiodata = new short[bufferSize/2];
-            DataOutputStream fos = null;
-            try {
-                fos = new DataOutputStream( new FileOutputStream(mSampleFile));
-                int readSize;
-                while (mAudioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING){
-                    readSize = mAudioRecord.read(audiodata,0,audiodata.length);
-                    if(AudioRecord.ERROR_INVALID_OPERATION != readSize){
-                        for(int i = 0;i<readSize;i++){
-                            fos.writeShort(audiodata[i]);
-                            fos.flush();
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally {
-                if(fos!=null){
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+
+                while (true) {
+
+                    int bufferReadResult = mAudioRecord.read(buffer, 0, bufferSizeInBytes); // record data from mic into buffer
+                    if (bufferReadResult > 0) {
+                        calculate();
                     }
                 }
 
-                //在这里release
-                mAudioRecord.release();
-                mAudioRecord = null;
+        }
+    }
+    int []equal = new int [10];
+    int count = 0;
+    public void calculate() {
+        double[] magnitude = new double[bufferSizeInBytes / 2];
+        //Create Complex array for use in FFT
+        Complex[] fftTempArray = new Complex[bufferSizeInBytes];
+        for (int i = 0; i < bufferSizeInBytes; i++) {
+            fftTempArray[i] = new Complex(buffer[i], 0);
+        }
+
+        //Obtain array of FFT data
+        final Complex[] fftArray = FFT.fft(fftTempArray);
+        // calculate power spectrum (magnitude) values from fft[]
+        for (int i = 0; i < (bufferSizeInBytes / 2) - 1; ++i) {
+
+            double real = fftArray[i].re();
+            double imaginary = fftArray[i].im();
+            magnitude[i] = Math.sqrt(real * real + imaginary * imaginary);
+
+        }
+
+        // find largest peak in power spectrum
+        double max_magnitude = magnitude[0];
+        int max_index = 0;
+        for (int i = 0; i < magnitude.length; ++i) {
+            if (magnitude[i] > max_magnitude) {
+                max_magnitude = (int) magnitude[i];
+                max_index = i;
             }
         }
-    };
+        double freq = 44100 * max_index / bufferSizeInBytes;//here will get frequency in hz like(17000,18000..etc)
+        /*equal[count] = (int)freq;
+        count += 1;
+        if(count>2){
+            if(equal[count-1] != equal[0]){
+                count = 0;
+            }
+        }
+        if(count == 10){
+            Log.i("test","fre"+String.valueOf(equal[0]));
+            count =0;
+            Message msg = new Message();
+            Bundle b = new Bundle();
+            b.putInt("fre",equal[0]);
+            msg.setData(b);
+            mh.sendMessage(msg);
+        }*/
+        Log.i("test","fre"+String.valueOf(freq));
+        int freInt = (int)freq;
+        Message msg = new Message();
+        Bundle b = new Bundle();
+        b.putInt("fre",freInt);
+        msg.setData(b);
+        mh.sendMessage(msg);
+    }
+
+    class MyHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle b = msg.getData();
+            TextView tv = (TextView)findViewById(R.id.tv_Fre_did);
+            tv.setText("Recorded: "+String.valueOf(b.getInt("fre")));
+            //tv.setText("Recorded: "+String.valueOf(b.getInt(equal[0])));
+        }
+    }
 
     //在这里stop的时候先不要release
     private void stopRecording() {
         mAudioRecord.stop();
-    }
-
-    //对录音文件进行分析
-    private void frequencyAnalyse(){
-        if(mSampleFile == null){
-            Toast.makeText(getApplicationContext(), "NULL", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            DataInputStream inputStream = new DataInputStream(new FileInputStream(mSampleFile));
-            //16bit采样，因此用short[]
-            //如果是8bit采样，这里直接用byte[]
-            //从文件中读出一段数据，这里长度是SAMPLE_RATE，也就是1s采样的数据
-            short[] buffer=new short[SAMPLE_RATE];
-            for(int i = 0;i<buffer.length;i++){
-                buffer[i] = inputStream.readShort();
-            }
-            short[] data = new short[FFT.FFT_N];
-
-            //为了数据稳定，在这里FFT分析只取最后的FFT_N个数据
-            System.arraycopy(buffer, buffer.length - FFT.FFT_N,
-                    data, 0, FFT.FFT_N);
-
-            //FFT分析得到频率
-            int frequence = (int)FFT.GetFrequency(data);
-            tv_fre_did.setText("Recorded:"+String.valueOf(frequence));
-            int RESOLUTION = 100; //Hz，误差
-            if(Math.abs(frequence - FREQUENCY)<RESOLUTION){
-                //测试通过
-                if(deviceConnected) {
-                    String colorName = tv_color.getText().toString();
-                    colorName=colorName.substring(0,1);
-                    outPutToArduino(colorName);
-                    Toast.makeText(getApplicationContext(), "Send : "+colorName, Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Pass", Toast.LENGTH_LONG).show();
-                }
-            }else{
-                //测试失败
-                Toast.makeText(getApplicationContext(), "FAIL", Toast.LENGTH_SHORT).show();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "At least need to record 1 second", Toast.LENGTH_SHORT).show();
-        }
     }
 
 }
