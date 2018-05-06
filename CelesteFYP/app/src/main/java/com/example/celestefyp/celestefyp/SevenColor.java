@@ -73,13 +73,13 @@ public class SevenColor {
     }
 
     public int getColorFre(int tempColor){
-        if(tempColor==1) return 1750;
-        if(tempColor==2) return 2980;
-        if(tempColor==3) return 3140;
-        if(tempColor==4) return 1170;
-        if(tempColor==5) return 2640;
-        if(tempColor==6) return 1400;
-        if(tempColor==7) return 1560;
+        if(tempColor==1) return 260;
+        if(tempColor==2) return 295;
+        if(tempColor==3) return 330;
+        if(tempColor==4) return 350;
+        if(tempColor==5) return 390;
+        if(tempColor==6) return 440;
+        if(tempColor==7) return 495;
         return 0;
     }
     private double getDistance(int pixelColor,int r,int g,int b){

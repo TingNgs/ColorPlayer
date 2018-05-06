@@ -41,16 +41,6 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"/>
-
-                <TextView
-                    android:id="@+id/tv_colorRGB"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:text="R:/ G:/ B:/"
-                    android:textSize="24dp" />
-
-
         </LinearLayout>
 
         <LinearLayout
@@ -105,29 +95,13 @@
                     android:layout_marginTop="10dp"
                     android:text="BT not connected"
                     android:textSize="24dp" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
-                <Button
-                    android:id="@+id/record_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Record" />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"
-                    android:visibility="invisible"/>
-                <Button
-                    android:id="@+id/stop_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Stop" />
 
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_colorRGB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="R:/ G:/ B:/"
+                android:textSize="24dp" />
                 <TextView
                 android:id="@+id/tv_Fre_need"
                 android:layout_width="wrap_content"

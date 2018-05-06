@@ -28,6 +28,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,23 +68,19 @@ public class MainActivity extends AppCompatActivity {
     ImageView iv_image, iv_color,iv_color0, iv_color1, iv_color2;
     TextView tv_color ,tv_fre_need,tv_fre_did;
     TextView tv_colorRGB;
-    Button b_photo,record,stop,reset;
+    Button b_photo,reset;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
     Bitmap bitmap ;
-    File recordfile ;
-    /*MediaRecorder audioRecorder;
-    MediaPlayer mediaPlayer;
-    boolean isPlaying = false;
-    File recodeFile;*/
     private static final String FILE_NAME = "MainMicRecord";
-    private static final int SAMPLE_RATE = 22050;//Hz，采样频率
-    int FREQUENCY;
+    private static final int SAMPLE_RATE = 44100;//Hz，采样频率
+    int FREQUENCY,recordedFREQUENCY;
     private static final long RECORD_TIME = 2000;
     private File mSampleFile;
     private int bufferSize=0;
     private AudioRecord mAudioRecord;
+    private boolean recording = false;
     MyHandler mh;
 
 
@@ -102,20 +100,24 @@ public class MainActivity extends AppCompatActivity {
         tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
         b_photo = (Button) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
-        record = (Button) findViewById(R.id.record_button);
-        reset = (Button) findViewById(R.id.reset);
-        stop = (Button) findViewById(R.id.stop_button);
-        mh=new MyHandler();
-        stop.setEnabled(false);
 
-        record.setOnClickListener(new View.OnClickListener() {
+        reset = (Button) findViewById(R.id.reset);
+
+        mh=new MyHandler();
+
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            makeRequest();
+        }
+
+        /*record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(resetting) return;
                 record.setEnabled(false);
                 stop.setEnabled(true);
-                startRecord();
-                tv_colorRGB.setText("Start recording");
             }
         });
 
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 stopRecording();
                 //frequencyAnalyse();
             }
-        });
+        });*/
 
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -139,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 int temp_fre =  sc.getColorFre(soundValue0);
                 FREQUENCY = temp_fre;
                 tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -155,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 int temp_fre =  sc.getColorFre(soundValue1);
                 FREQUENCY = temp_fre;
                 tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -171,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 int temp_fre =  sc.getColorFre(soundValue2);
                 FREQUENCY = temp_fre;
                 tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         b_photo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if(resetting) return;
+                if(recording) return;
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
 
@@ -198,21 +203,14 @@ public class MainActivity extends AppCompatActivity {
                 iv_color0.setBackgroundColor(Color.parseColor("#000000"));
                 iv_color1.setBackgroundColor(Color.parseColor("#000000"));
                 iv_color2.setBackgroundColor(Color.parseColor("#000000"));
-                stop.setEnabled(false);
-                record.setEnabled(true);
                 tv_fre_need.setText("Need:");
                 tv_fre_did.setText("Recorded:");
                 tv_colorRGB.setText("R:/ G:/ B:/");
                 tv_color.setText("Reset");
                 s_box.setSelection(0);
-                /*if(BTinit()) {
-                    if (BTconnect()) {
-                        tv_color.setText("BT connected");
-                        deviceConnected = true;
-                    }
-                }
-                if(!(tv_color.getText().toString().equals("BT connected")))tv_color.setText("BT not connected");*/
                 resetting = false;
+                if(recording) stopRecording();
+                recording = false;
             }
         });
 
@@ -262,6 +260,14 @@ public class MainActivity extends AppCompatActivity {
                 deviceConnected = true;
             }
         }
+
+    }
+
+    private static final int RECORD_REQUEST_CODE = 101;
+    protected void makeRequest() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.RECORD_AUDIO},
+                RECORD_REQUEST_CODE);
     }
 
     public boolean BTinit()
@@ -342,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
+
     }
     private void playSound(int soundValue){
         MediaPlayer player = null;
@@ -428,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startRecord() {
         try {
+            recording = true;
             mSampleFile = new File(getFilesDir()+"/"+FILE_NAME);
             if(mSampleFile.exists()){
                 if(!mSampleFile.delete()){
@@ -472,6 +480,7 @@ public class MainActivity extends AppCompatActivity {
     }
     int []equal = new int [10];
     int count = 0;
+    int resetCount = 0;
     public void calculate() {
         double[] magnitude = new double[bufferSizeInBytes / 2];
         //Create Complex array for use in FFT
@@ -501,8 +510,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         double freq = 44100 * max_index / bufferSizeInBytes;//here will get frequency in hz like(17000,18000..etc)
-        /*equal[count] = (int)freq;
+        equal[count] = (int)freq;
         count += 1;
+        resetCount += 1;
         if(count>2){
             if(equal[count-1] != equal[0]){
                 count = 0;
@@ -511,19 +521,21 @@ public class MainActivity extends AppCompatActivity {
         if(count == 10){
             Log.i("test","fre"+String.valueOf(equal[0]));
             count =0;
+            resetCount=0;
             Message msg = new Message();
             Bundle b = new Bundle();
             b.putInt("fre",equal[0]);
             msg.setData(b);
             mh.sendMessage(msg);
-        }*/
-        Log.i("test","fre"+String.valueOf(freq));
-        int freInt = (int)freq;
-        Message msg = new Message();
-        Bundle b = new Bundle();
-        b.putInt("fre",freInt);
-        msg.setData(b);
-        mh.sendMessage(msg);
+        }
+        if(resetCount== 50){
+            Message msg = new Message();
+            Bundle b = new Bundle();
+            b.putInt("fre",0);
+            msg.setData(b);
+            mh.sendMessage(msg);
+        }
+
     }
 
     class MyHandler extends Handler{
@@ -531,14 +543,28 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             Bundle b = msg.getData();
             TextView tv = (TextView)findViewById(R.id.tv_Fre_did);
+            TextView tv_color = (TextView)findViewById(R.id.tv_color);
+            recordedFREQUENCY = b.getInt("fre");
             tv.setText("Recorded: "+String.valueOf(b.getInt("fre")));
-            //tv.setText("Recorded: "+String.valueOf(b.getInt(equal[0])));
+            if(FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<10){
+                stopRecording();
+                recording = false;
+                String colorName = tv_color.getText().toString();
+                colorName = colorName.substring(0,1);
+                if(deviceConnected) {
+                    outPutToArduino(colorName);
+                    Toast.makeText(getApplicationContext(), "Send : " + colorName, Toast.LENGTH_LONG).show();
+                }
+                else
+                    Toast.makeText(getApplicationContext(), "Pass : "+colorName, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
     //在这里stop的时候先不要release
     private void stopRecording() {
         mAudioRecord.stop();
+        mAudioRecord.release();
     }
 
 }
