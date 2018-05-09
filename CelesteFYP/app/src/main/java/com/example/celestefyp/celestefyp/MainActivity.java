@@ -243,9 +243,8 @@ public class MainActivity extends AppCompatActivity {
                         tv_colorRGB.setText("R:"+R+" G:"+G+" B:"+B);
                         int tempColor = sc.getSevenColor(pixelColor);
                         int finalColor = sc.getColorValue(tempColor);
-                        getColorImage(tempColor);
-
                         updateBoxChose(tempColor);
+                        getColorImage(tempColor);
                         iv_color.setBackgroundColor(finalColor);
                     }
                 }
@@ -269,15 +268,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void getColorImage(int tempColor){
         Context context = getApplicationContext();
-        Drawable image = context.getResources().getDrawable(R.drawable.black);
-        if (tempColor == 1) image = context.getResources().getDrawable(R.drawable.red);
-        else if (tempColor == 2) image = context.getResources().getDrawable(R.drawable.yellow);
-        else if (tempColor == 3) image = context.getResources().getDrawable(R.drawable.yellow);
-        else if (tempColor == 4) image = context.getResources().getDrawable(R.drawable.yellow);
-        else if (tempColor == 5) image = context.getResources().getDrawable(R.drawable.yellow);
-        else if (tempColor == 6) image = context.getResources().getDrawable(R.drawable.yellow);
-        else if (tempColor == 7) image = context.getResources().getDrawable(R.drawable.yellow);
-        iv_color.setImageDrawable(image);
+        iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
+        if (tempColor == 1) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 2) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.yellow));
+        else if (tempColor == 3) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 4) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 5) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 6) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 7) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
     }
 
     private static final int RECORD_REQUEST_CODE = 101;
