@@ -271,11 +271,11 @@ public class MainActivity extends AppCompatActivity {
         iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
         if (tempColor == 1) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
         else if (tempColor == 2) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.yellow));
-        else if (tempColor == 3) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
-        else if (tempColor == 4) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
-        else if (tempColor == 5) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
-        else if (tempColor == 6) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
-        else if (tempColor == 7) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.red));
+        else if (tempColor == 3) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.blue));
+        else if (tempColor == 4) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.purple));
+        else if (tempColor == 5) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.orange));
+        else if (tempColor == 6) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.green));
+        else if (tempColor == 7) iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.silver));
     }
 
     private static final int RECORD_REQUEST_CODE = 101;
