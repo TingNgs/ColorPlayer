@@ -18,12 +18,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
-                        <Button
+                        <ImageButton
                             android:layout_marginLeft="30dp"
                             android:id="@+id/b_photo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Take Photo"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/blackstart"
                              />
 
                         <Spinner

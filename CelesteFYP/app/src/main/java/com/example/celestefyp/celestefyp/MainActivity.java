@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -35,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -68,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView iv_image, iv_color,iv_color0, iv_color1, iv_color2;
     TextView tv_color ,tv_fre_need,tv_fre_did;
     TextView tv_colorRGB;
-    Button b_photo,reset;
+    Button reset;
+    ImageButton b_photo;
     Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         tv_fre_need = (TextView) findViewById(R.id.tv_Fre_need);
         tv_fre_did = (TextView) findViewById(R.id.tv_Fre_did);
         tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
-        b_photo = (Button) findViewById(R.id.b_photo);
+        b_photo = (ImageButton) findViewById(R.id.b_photo);
         s_box = (Spinner) findViewById(R.id.s_box);
 
         reset = (Button) findViewById(R.id.reset);
@@ -240,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                         tv_colorRGB.setText("R:"+R+" G:"+G+" B:"+B);
                         int tempColor = sc.getSevenColor(pixelColor);
                         int finalColor = sc.getColorValue(tempColor);
+                        getColorImage(tempColor);
 
                         updateBoxChose(tempColor);
                         iv_color.setBackgroundColor(finalColor);
@@ -261,6 +265,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void getColorImage(int tempColor){
+        Context context = getApplicationContext();
+        Drawable image = context.getResources().getDrawable(R.drawable.black);
+        if (tempColor == 1) image = context.getResources().getDrawable(R.drawable.red);
+        else if (tempColor == 2) image = context.getResources().getDrawable(R.drawable.yellow);
+        else if (tempColor == 3) image = context.getResources().getDrawable(R.drawable.yellow);
+        else if (tempColor == 4) image = context.getResources().getDrawable(R.drawable.yellow);
+        else if (tempColor == 5) image = context.getResources().getDrawable(R.drawable.yellow);
+        else if (tempColor == 6) image = context.getResources().getDrawable(R.drawable.yellow);
+        else if (tempColor == 7) image = context.getResources().getDrawable(R.drawable.yellow);
+        iv_color.setImageDrawable(image);
     }
 
     private static final int RECORD_REQUEST_CODE = 101;
