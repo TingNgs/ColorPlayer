@@ -79,7 +79,7 @@ public class SevenColor {
         if(tempColor==4) return 350;
         if(tempColor==5) return 390;
         if(tempColor==6) return 440;
-        if(tempColor==7) return 495;
+        if(tempColor==7) return 515;
         return 0;
     }
     private double getDistance(int pixelColor,int r,int g,int b){
@@ -87,23 +87,5 @@ public class SevenColor {
         double gd = (Color.green(pixelColor)-g)*(Color.green(pixelColor)-g);
         double bd = (Color.blue(pixelColor)-b)*(Color.blue(pixelColor)-b);
         return (rd+gd+bd);
-    }
-
-    private boolean inRangeOf(int pixelColor,double or,double ob,double og){
-        double r = Color.red(pixelColor);
-        double g = Color.red(pixelColor);
-        double b = Color.red(pixelColor);
-        if(inpresOf((r-g)/g,(or-og)/og)){
-            if(inpresOf((r-b)/b,(or-ob)/ob)){
-                if(inpresOf((g-b)/b,(og-ob)/ob)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    private boolean inpresOf(double x,double y){
-        if(Math.abs((Math.abs(x) -Math.abs(y)))*100 < 30) return true;
-        else return false;
     }
 }

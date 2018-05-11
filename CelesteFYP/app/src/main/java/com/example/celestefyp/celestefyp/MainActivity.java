@@ -12,15 +12,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Environment;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -29,32 +26,27 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.TextPaint;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.Switch;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private final String btDeviceName = "COLORPPELLA";
@@ -64,15 +56,19 @@ public class MainActivity extends AppCompatActivity {
     int RESULT_LOAD_IMAGE = 0;
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 1;
     int soundValue0=0,soundValue1=0,soundValue2=0;
+    int selectingColor = 0;
+    int playingSound;
     boolean soundPlayer = true;
     boolean deviceConnected = false;
     boolean resetting = false;
     ImageView iv_image, iv_color,iv_color0, iv_color1, iv_color2;
+    ImageView iv_colorPicker0,iv_colorPicker1,iv_colorPicker2,iv_colorPicker;
+    TextView tv_colorPicker0,tv_colorPicker1,tv_colorPicker2;
     TextView tv_color ,tv_fre_need,tv_fre_did;
     TextView tv_colorRGB;
     Button reset;
     ImageButton b_photo;
-    Spinner s_box;
+    //Spinner s_box;
     private final int requestCode = 20;
     SevenColor sc = new SevenColor();
     Bitmap bitmap ;
@@ -85,14 +81,32 @@ public class MainActivity extends AppCompatActivity {
     private AudioRecord mAudioRecord;
     private boolean recording = false;
     MyHandler mh;
-
+    LinearLayout page1,page2,page3;
+    MediaPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        try
+        {
+            this.getSupportActionBar().hide();
+        }
+        catch (NullPointerException e){}
+
+        setContentView(R.layout.activity_main);
+//set content view AFTER ABOVE sequence (to avoid crash)
+        this.setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         soundValue0=0;soundValue1=0;soundValue2=0;
+        iv_colorPicker0 = (ImageView) findViewById(R.id.iv_colorPicker0);
+        iv_colorPicker1 = (ImageView) findViewById(R.id.iv_colorPicker1);
+        iv_colorPicker2 = (ImageView) findViewById(R.id.iv_colorPicker2);
+        tv_colorPicker0 = (TextView) findViewById(R.id.tv_colorPicker0);
+        tv_colorPicker1 = (TextView) findViewById(R.id.tv_colorPicker1);
+        tv_colorPicker2 = (TextView) findViewById(R.id.tv_colorPicker2);
+        iv_colorPicker = (ImageView) findViewById(R.id.iv_colorPicker0);
         iv_image = (ImageView) findViewById(R.id.iv_image);
         iv_color0 = (ImageView) findViewById(R.id.iv_color0);
         iv_color1 = (ImageView) findViewById(R.id.iv_color1);
@@ -102,9 +116,11 @@ public class MainActivity extends AppCompatActivity {
         tv_fre_did = (TextView) findViewById(R.id.tv_Fre_did);
         tv_colorRGB = (TextView) findViewById(R.id.tv_colorRGB);
         b_photo = (ImageButton) findViewById(R.id.b_photo);
-        s_box = (Spinner) findViewById(R.id.s_box);
-
+        //s_box = (Spinner) findViewById(R.id.s_box);
         reset = (Button) findViewById(R.id.reset);
+        page1 = (LinearLayout) findViewById(R.id.page1);
+        page2 = (LinearLayout) findViewById(R.id.page2);
+        page3 = (LinearLayout) findViewById(R.id.page3);
 
         mh=new MyHandler();
 
@@ -115,25 +131,6 @@ public class MainActivity extends AppCompatActivity {
             makeRequest();
         }
 
-        /*record.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(resetting) return;
-                record.setEnabled(false);
-                stop.setEnabled(true);
-            }
-        });
-
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(resetting) return;
-                record.setEnabled(true);
-                stop.setEnabled(false);
-                stopRecording();
-                //frequencyAnalyse();
-            }
-        });*/
 
         iv_color0.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -143,11 +140,14 @@ public class MainActivity extends AppCompatActivity {
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue0);
                 FREQUENCY = temp_fre;
-                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                page2.setVisibility(View.GONE);
+                page3.setVisibility(View.VISIBLE);
+                tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
                 if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
+                    playingSound = soundValue0;
                     soundPlayer = true;
                 }
             }
@@ -160,11 +160,14 @@ public class MainActivity extends AppCompatActivity {
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue1);
                 FREQUENCY = temp_fre;
-                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                page2.setVisibility(View.GONE);
+                page3.setVisibility(View.VISIBLE);
+                tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
                 if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
+                    playingSound = soundValue1;
                     soundPlayer = true;
                 }
             }
@@ -177,40 +180,58 @@ public class MainActivity extends AppCompatActivity {
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue2);
                 FREQUENCY = temp_fre;
-                tv_fre_need.setText("Need:"+String.valueOf(FREQUENCY));
+                page2.setVisibility(View.GONE);
+                page3.setVisibility(View.VISIBLE);
+                tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
                 if(temp_fre != 0 && recording == false)startRecord();
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
+                    playingSound = soundValue2;
                     soundPlayer = true;
                 }
             }
         });
-
+        iv_colorPicker0.setOnClickListener(colorPicker0_OnClick);
+        iv_colorPicker1.setOnClickListener(colorPicker1_OnClick);
+        iv_colorPicker2.setOnClickListener(colorPicker2_OnClick);
+        tv_colorPicker2.setOnClickListener(colorPicker0_OnClick);
+        tv_colorPicker2.setOnClickListener(colorPicker1_OnClick);
+        tv_colorPicker2.setOnClickListener(colorPicker2_OnClick);
         b_photo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 if(recording) return;
+                page1.setVisibility(View.GONE);
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
-
             }
         });
 
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Context context = getApplicationContext();
+                page1.setVisibility(View.VISIBLE);
+                page2.setVisibility(View.VISIBLE);
+                page3.setVisibility(View.GONE);
                 resetting = true;
                 tv_color.setText("Resetting");
                 iv_image.setImageBitmap(null);
                 iv_color0.setBackgroundColor(Color.parseColor("#000000"));
                 iv_color1.setBackgroundColor(Color.parseColor("#000000"));
                 iv_color2.setBackgroundColor(Color.parseColor("#000000"));
-                tv_fre_need.setText("Need:");
-                tv_fre_did.setText("Recorded:");
+                iv_color0.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
+                iv_color1.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
+                iv_color2.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
+                iv_colorPicker0.setBackgroundColor(Color.parseColor("#000000"));
+                iv_colorPicker1.setBackgroundColor(Color.parseColor("#000000"));
+                iv_colorPicker2.setBackgroundColor(Color.parseColor("#000000"));
+                selectingColor = 0;
+                tv_fre_need.setText("GOAL 000");
+                tv_fre_did.setText("0");
                 tv_colorRGB.setText("R:/ G:/ B:/");
                 tv_color.setText("Reset");
-                s_box.setSelection(0);
                 resetting = false;
                 if(recording) stopRecording();
                 recording = false;
@@ -246,16 +267,13 @@ public class MainActivity extends AppCompatActivity {
                         updateBoxChose(tempColor);
                         getColorImage(tempColor);
                         iv_color.setBackgroundColor(finalColor);
+                        iv_colorPicker.setBackgroundColor(finalColor);
                     }
                 }
                 return true;
             }
 
         });
-        ArrayAdapter<CharSequence> boxList = ArrayAdapter.createFromResource(MainActivity.this,
-                R.array.ChooseBox,
-                android.R.layout.simple_spinner_dropdown_item);
-        s_box.setAdapter(boxList);
         tv_color.setText("BT not connected");
         if(BTinit()) {
             if (BTconnect()) {
@@ -265,7 +283,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
+    View.OnClickListener colorPicker0_OnClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            selectingColor = 0;
+        }
+    };
+    View.OnClickListener colorPicker1_OnClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            selectingColor = 1;
+        }
+    };
+    View.OnClickListener colorPicker2_OnClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            selectingColor = 2;
+        }
+    };
     private void getColorImage(int tempColor){
         Context context = getApplicationContext();
         iv_color.setImageDrawable(context.getResources().getDrawable(R.drawable.black));
@@ -366,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void playSound(int soundValue){
-        MediaPlayer player = null;
+        player = null;
         switch (soundValue){
             case 1:
                 player = MediaPlayer.create(this, R.raw.a);
@@ -406,17 +441,63 @@ public class MainActivity extends AppCompatActivity {
         }
     });
     }
+
+    private void playMusic(int soundValue){
+        player = null;
+        switch (soundValue){
+            case 1:
+                player = MediaPlayer.create(this, R.raw.a);
+                break;
+            case 2:
+                player = MediaPlayer.create(this, R.raw.b);
+                break;
+            case 3:
+                player = MediaPlayer.create(this, R.raw.c);
+                break;
+            case 4:
+                player = MediaPlayer.create(this, R.raw.d);
+                break;
+            case 5:
+                player = MediaPlayer.create(this, R.raw.e);
+                break;
+            case 6:
+                player = MediaPlayer.create(this, R.raw.f);
+                break;
+            case 7:
+                player = MediaPlayer.create(this, R.raw.g);
+                break;
+            default:
+                player = MediaPlayer.create(this,R.raw.error);
+                break;
+        }
+        if(player != null) {
+            player.start();
+        }
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.stop();
+                if(mp != null){
+                    mp.release();
+                }
+            }
+        });
+    }
     private void updateBoxChose(int tempColor){
-        if(s_box.getSelectedItemPosition()== 0){
+
+        if(selectingColor== 0){
             iv_color = (ImageView) findViewById(R.id.iv_color0);
+            iv_colorPicker = (ImageView) findViewById(R.id.iv_colorPicker0);
             soundValue0 = tempColor;
         }
-        if(s_box.getSelectedItemPosition()== 1){
+        if(selectingColor== 1){
             iv_color = (ImageView) findViewById(R.id.iv_color1);
+            iv_colorPicker = (ImageView) findViewById(R.id.iv_colorPicker1);
             soundValue1 = tempColor;
         }
-        if(s_box.getSelectedItemPosition()== 2){
+        if(selectingColor== 2){
             iv_color = (ImageView) findViewById(R.id.iv_color2);
+            iv_colorPicker = (ImageView) findViewById(R.id.iv_colorPicker2);
             soundValue2 = tempColor;
         }
     }
@@ -560,8 +641,8 @@ public class MainActivity extends AppCompatActivity {
             TextView tv = (TextView)findViewById(R.id.tv_Fre_did);
             TextView tv_color = (TextView)findViewById(R.id.tv_color);
             recordedFREQUENCY = b.getInt("fre");
-            tv.setText("Recorded: "+String.valueOf(b.getInt("fre")));
-            if(FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<10){
+            tv.setText(String.valueOf(b.getInt("fre")));
+            if(FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<=15){
                 stopRecording();
                 recording = false;
                 String colorName = tv_color.getText().toString();
@@ -572,6 +653,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else
                     Toast.makeText(getApplicationContext(), "Pass : "+colorName, Toast.LENGTH_LONG).show();
+                playMusic(playingSound);
             }
         }
     }
@@ -583,4 +665,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-

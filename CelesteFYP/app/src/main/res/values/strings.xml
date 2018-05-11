@@ -5,4 +5,7 @@
         <item>Box 2</item>
         <item>Box 3</item>
     </string-array>
+    <string name="colorPicker1">顏色一</string>
+    <string name="colorPicker2">顏色二</string>
+    <string name="colorPicker3">顏色三</string>
 </resources>
