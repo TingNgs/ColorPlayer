@@ -140,10 +140,12 @@ public class MainActivity extends AppCompatActivity{
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue0);
                 FREQUENCY = temp_fre;
-                page2.setVisibility(View.GONE);
-                page3.setVisibility(View.VISIBLE);
+
                 tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
-                if(temp_fre != 0 && recording == false)startRecord();
+                if(temp_fre != 0 && recording == false){
+                    startRecord();page2.setVisibility(View.GONE);
+                    page3.setVisibility(View.VISIBLE);
+                }
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue0);
@@ -160,10 +162,10 @@ public class MainActivity extends AppCompatActivity{
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue1);
                 FREQUENCY = temp_fre;
-                page2.setVisibility(View.GONE);
-                page3.setVisibility(View.VISIBLE);
+
                 tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
-                if(temp_fre != 0 && recording == false)startRecord();
+                if(temp_fre != 0 && recording == false){startRecord();page2.setVisibility(View.GONE);
+                    page3.setVisibility(View.VISIBLE);}
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue1);
@@ -180,10 +182,10 @@ public class MainActivity extends AppCompatActivity{
                 tv_color.setText(colorName);
                 int temp_fre =  sc.getColorFre(soundValue2);
                 FREQUENCY = temp_fre;
-                page2.setVisibility(View.GONE);
-                page3.setVisibility(View.VISIBLE);
+
                 tv_fre_need.setText("GOAL "+String.valueOf(FREQUENCY));
-                if(temp_fre != 0 && recording == false)startRecord();
+                if(temp_fre != 0 && recording == false){startRecord();page2.setVisibility(View.GONE);
+                    page3.setVisibility(View.VISIBLE);}
                 if(soundPlayer) {
                     soundPlayer = false;
                     playSound(soundValue2);
