@@ -65,7 +65,6 @@
 
 
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/page2"
         android:visibility="visible"

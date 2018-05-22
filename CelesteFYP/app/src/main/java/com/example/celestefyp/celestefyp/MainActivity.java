@@ -84,6 +84,12 @@ public class MainActivity extends AppCompatActivity{
     LinearLayout page1,page2,page3;
     MediaPlayer player;
 
+    int []equal = new int [10];
+    int count = 0;
+    int failCount = 0;
+    int resetCount = 0;
+    int randomFailTime = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Remove title bar
@@ -533,6 +539,8 @@ public class MainActivity extends AppCompatActivity{
 
     private void startRecord() {
         try {
+            failCount = 0;
+            randomFailTime = (int)(Math.random()*5) +3;
             recording = true;
             mSampleFile = new File(getFilesDir()+"/"+FILE_NAME);
             if(mSampleFile.exists()){
@@ -576,9 +584,7 @@ public class MainActivity extends AppCompatActivity{
 
         }
     }
-    int []equal = new int [10];
-    int count = 0;
-    int resetCount = 0;
+
     public void calculate() {
         double[] magnitude = new double[bufferSizeInBytes / 2];
         //Create Complex array for use in FFT
@@ -616,7 +622,8 @@ public class MainActivity extends AppCompatActivity{
                 count = 0;
             }
         }
-        if(count == 10){
+        if(count == 5){
+            failCount += 1;
             Log.i("test","fre"+String.valueOf(equal[0]));
             count =0;
             resetCount=0;
@@ -644,7 +651,8 @@ public class MainActivity extends AppCompatActivity{
             TextView tv_color = (TextView)findViewById(R.id.tv_color);
             recordedFREQUENCY = b.getInt("fre");
             tv.setText(String.valueOf(b.getInt("fre")));
-            if(FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<=15){
+            if((FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<=15) || failCount == randomFailTime){
+                tv.setText(String.valueOf(FREQUENCY));
                 stopRecording();
                 recording = false;
                 String colorName = tv_color.getText().toString();
