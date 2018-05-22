@@ -454,25 +454,25 @@ public class MainActivity extends AppCompatActivity{
         player = null;
         switch (soundValue){
             case 1:
-                player = MediaPlayer.create(this, R.raw.a);
+                player = MediaPlayer.create(this, R.raw.red);
                 break;
             case 2:
-                player = MediaPlayer.create(this, R.raw.b);
+                player = MediaPlayer.create(this, R.raw.yellow);
                 break;
             case 3:
-                player = MediaPlayer.create(this, R.raw.c);
+                player = MediaPlayer.create(this, R.raw.blue);
                 break;
             case 4:
-                player = MediaPlayer.create(this, R.raw.d);
+                player = MediaPlayer.create(this, R.raw.purple);
                 break;
             case 5:
-                player = MediaPlayer.create(this, R.raw.e);
+                player = MediaPlayer.create(this, R.raw.orange);
                 break;
             case 6:
-                player = MediaPlayer.create(this, R.raw.f);
+                player = MediaPlayer.create(this, R.raw.green);
                 break;
             case 7:
-                player = MediaPlayer.create(this, R.raw.g);
+                player = MediaPlayer.create(this, R.raw.silver);
                 break;
             default:
                 player = MediaPlayer.create(this,R.raw.error);
