@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity{
     int failCount = 0;
     int resetCount = 0;
     int randomFailTime = 0;
+    int randomRange = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -652,7 +653,8 @@ public class MainActivity extends AppCompatActivity{
             recordedFREQUENCY = b.getInt("fre");
             tv.setText(String.valueOf(b.getInt("fre")));
             if((FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<=15) || failCount == randomFailTime){
-                tv.setText(String.valueOf(FREQUENCY));
+                randomRange=(int)(Math.random()*31)-15;
+                tv.setText(String.valueOf(FREQUENCY+randomRange));
                 stopRecording();
                 recording = false;
                 String colorName = tv_color.getText().toString();
