@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity{
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
                 tv_color.setText("BT not connected");
-                if(BTinit()) {
+                if(BTinit()){
                     if (BTconnect()) {
                         tv_color.setText("BT connected");
                         deviceConnected = true;
@@ -378,7 +378,6 @@ public class MainActivity extends AppCompatActivity{
         }
         if(connected)
         {
-
             try {
                 outputStream=socket.getOutputStream();
             } catch (IOException e) {
@@ -623,7 +622,7 @@ public class MainActivity extends AppCompatActivity{
                 count = 0;
             }
         }
-        if(count == 5){
+        if(count == 8){
             failCount += 1;
             Log.i("test","fre"+String.valueOf(equal[0]));
             count =0;
