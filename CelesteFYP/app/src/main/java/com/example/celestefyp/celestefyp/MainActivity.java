@@ -214,6 +214,14 @@ public class MainActivity extends AppCompatActivity{
                 page1.setVisibility(View.GONE);
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
+                tv_color.setText("BT not connected");
+                if(BTinit()) {
+                    if (BTconnect()) {
+                        tv_color.setText("BT connected");
+                        deviceConnected = true;
+                        Toast.makeText(getApplicationContext(),"BT connected",Toast.LENGTH_SHORT).show();
+                    }else{Toast.makeText(getApplicationContext(),"BT Not connected",Toast.LENGTH_SHORT).show();}
+                }else{Toast.makeText(getApplicationContext(),"BT Not connected",Toast.LENGTH_SHORT).show();}
             }
         });
 
@@ -283,13 +291,7 @@ public class MainActivity extends AppCompatActivity{
             }
 
         });
-        tv_color.setText("BT not connected");
-        if(BTinit()) {
-            if (BTconnect()) {
-                tv_color.setText("BT connected");
-                deviceConnected = true;
-            }
-        }
+
 
     }
     View.OnClickListener colorPicker0_OnClick = new View.OnClickListener() {
