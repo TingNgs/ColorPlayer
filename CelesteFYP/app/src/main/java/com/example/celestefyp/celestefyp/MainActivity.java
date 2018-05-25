@@ -49,7 +49,7 @@ import java.util.jar.Attributes;
 public class MainActivity extends AppCompatActivity{
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private final String btDeviceName = "COLORPPELLA";
+    private final String btDeviceName = "HC-05";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -651,10 +651,15 @@ public class MainActivity extends AppCompatActivity{
             TextView tv = (TextView)findViewById(R.id.tv_Fre_did);
             TextView tv_color = (TextView)findViewById(R.id.tv_color);
             recordedFREQUENCY = b.getInt("fre");
+            randomRange=(int)(Math.random()*31)-15;
             tv.setText(String.valueOf(b.getInt("fre")));
             if((FREQUENCY != 0 && Math.abs(recordedFREQUENCY-FREQUENCY)<=15) || failCount == randomFailTime){
-                randomRange=(int)(Math.random()*31)-15;
-                tv.setText(String.valueOf(FREQUENCY+randomRange));
+                if (failCount == randomFailTime) {
+                    tv.setText(String.valueOf(FREQUENCY + randomRange));
+                }
+                else{
+                    tv.setText(String.valueOf(recordedFREQUENCY));
+                }
                 stopRecording();
                 recording = false;
                 String colorName = tv_color.getText().toString();
