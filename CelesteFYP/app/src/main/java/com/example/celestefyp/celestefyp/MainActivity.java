@@ -49,7 +49,7 @@ import java.util.jar.Attributes;
 public class MainActivity extends AppCompatActivity{
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private final String btDeviceName = "HC-05";
+    private final String DEVICE_ADDRESS="98:D3:31:FD:62:33";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -290,7 +290,6 @@ public class MainActivity extends AppCompatActivity{
                 deviceConnected = true;
             }
         }
-
     }
     View.OnClickListener colorPicker0_OnClick = new View.OnClickListener() {
         @Override
@@ -356,7 +355,7 @@ public class MainActivity extends AppCompatActivity{
 
             for (BluetoothDevice iterator : bondedDevices)
             {
-                if(btDeviceName.equals(iterator.getName()))
+                if(iterator.getAddress().equals(DEVICE_ADDRESS))
                 {
                     device=iterator;
                     found=true;
