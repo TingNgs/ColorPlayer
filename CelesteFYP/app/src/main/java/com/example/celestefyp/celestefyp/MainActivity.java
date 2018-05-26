@@ -49,7 +49,7 @@ import java.util.jar.Attributes;
 public class MainActivity extends AppCompatActivity{
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    private final String DEVICE_ADDRESS="98:D3:31:FD:62:33";
+    private final String DEVICE_ADDRESS="98:D3:A1:F5:B5:36";
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity{
                 page1.setVisibility(View.GONE);
                 Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoCaptureIntent,requestCode);
-                tv_color.setText("BT not connected");
                 if(BTinit()){
                     if (BTconnect()) {
                         tv_color.setText("BT connected");
